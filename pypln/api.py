@@ -209,6 +209,22 @@ class Corpus(object):
 
         return result, errors
 
+    def delete(self):
+        '''
+        Deletes the corpus. Be very careful, since this operation is
+        irreversible.
+
+        Returns True if the Corpus was successfully deleted, raises
+        RuntimeError otherwise.
+        '''
+        result = self.session.delete(self.url)
+        if result.status_code == 204:
+            return True
+        else:
+            raise RuntimeError("Corpus deletion failed with status "
+                               "{}. The response was: '{}'".format(result.status_code,
+                                result.text))
+
 class PyPLN(object):
     """
     Class to connect to PyPLN's API and execute some actions

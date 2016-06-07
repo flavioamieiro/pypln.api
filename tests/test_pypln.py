@@ -379,6 +379,27 @@ class CorpusTest(unittest.TestCase):
         self.assertEqual(result[1][0][0], expected[1][0][0])
         self.assertIsInstance(expected[1][0][1], RuntimeError)
 
+    @patch("requests.Session.delete")
+    def test_delete_corpus(self, mocked_delete):
+        mocked_delete.return_value.status_code = 204
+
+        corpus = Corpus(session=self.session, **self.example_json)
+        result = corpus.delete()
+
+        mocked_delete.assert_called_with(self.example_json['url'])
+        self.assertTrue(result)
+
+    @patch("requests.Session.delete")
+    def test_corpus_deletion_fails(self, mocked_delete):
+        mocked_delete.return_value.status_code = 403
+
+        session = requests.Session()
+        session.auth = ('wrong_user', 'my_precious')
+        corpus = Corpus(session=session, **self.example_json)
+
+        with self.assertRaises(RuntimeError):
+            corpus.delete()
+
 
 class DocumentTest(unittest.TestCase):
 
