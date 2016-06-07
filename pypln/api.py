@@ -128,6 +128,22 @@ class Document(object):
                                "{}. The response was: '{}'".format(response.status_code,
                                 response.text))
 
+    def delete(self):
+        '''
+        Deletes the document. Be very careful, since this operation is
+        irreversible.
+
+        Returns True if the Document was successfully deleted, raises
+        RuntimeError otherwise.
+        '''
+        result = self.session.delete(self.url)
+        if result.status_code == 204:
+            return True
+        else:
+            raise RuntimeError("Document deletion failed with status "
+                               "{}. The response was: '{}'".format(result.status_code,
+                                result.text))
+
 
 class Corpus(object):
     '''Class that represents a Corpus in PyPLN'''

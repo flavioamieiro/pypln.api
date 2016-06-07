@@ -603,3 +603,24 @@ class DocumentTest(unittest.TestCase):
         handle.write.assert_called_once_with(png.decode('ascii'))
         mocked_get.assert_called_with(self.example_json['properties'] +
                 'wordcloud')
+
+    @patch("requests.Session.delete")
+    def test_delete_document(self, mocked_delete):
+        mocked_delete.return_value.status_code = 204
+
+        document = Document(session=self.session, **self.example_json)
+        result = document.delete()
+
+        mocked_delete.assert_called_with(self.example_json['url'])
+        self.assertTrue(result)
+
+    @patch("requests.Session.delete")
+    def test_document_deletion_fails(self, mocked_delete):
+        mocked_delete.return_value.status_code = 403
+
+        session = requests.Session()
+        session.auth = ('wrong_user', 'my_precious')
+        document = Document(session=session, **self.example_json)
+
+        with self.assertRaises(RuntimeError):
+            document.delete()
