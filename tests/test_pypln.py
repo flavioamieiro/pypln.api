@@ -400,6 +400,51 @@ class CorpusTest(unittest.TestCase):
         with self.assertRaises(RuntimeError):
             corpus.delete()
 
+    def test_get_all_documents(self):
+        example_document_2 = {
+             'owner': 'user',
+             'corpus': 'http://pypln.example.com/corpora/42/',
+             'size': 43,
+             'properties': 'http://pypln.example.com/documents/124/properties',
+             'url': 'http://pypln.example.com/documents/124/',
+             'blob': '/test_2.txt',
+             'uploaded_at': '2013-10-25T17:00:01.000Z',
+         }
+
+        expected_documents = [
+            Document(session=self.session, **self.example_document),
+            Document(session=self.session, **example_document_2)
+        ]
+
+        self.example_json['documents'] = [self.example_document,
+                example_document_2]
+
+        corpus = Corpus(session=self.session, **self.example_json)
+
+        for document in corpus.documents:
+            self.assertIsInstance(document, Document)
+
+        retrieved_document_1 = corpus.documents[0]
+        retrieved_document_2 = corpus.documents[1]
+
+        for key, value in self.example_document.items():
+            # `properties` is a method on `Document` class, so replacing with
+            # `properties_url` to test each key/value
+            if key == 'properties':
+                key = 'properties_url'
+            self.assertEqual(value, getattr(retrieved_document_1, key))
+
+        for key, value in example_document_2.items():
+            # `properties` is a method on `Document` class, so replacing with
+            # `properties_url` to test each key/value
+            if key == 'properties':
+                key = 'properties_url'
+            self.assertEqual(value, getattr(retrieved_document_2, key))
+
+        # Document objects should link `session` object from the Corpus
+        self.assertIs(retrieved_document_1.session, corpus.session)
+        self.assertIs(retrieved_document_2.session, corpus.session)
+
 
 class DocumentTest(unittest.TestCase):
 

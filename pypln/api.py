@@ -156,6 +156,9 @@ class Corpus(object):
         '''
         self.session = session
         for key, value in kwargs.items():
+            if key == 'documents':
+                value = map(lambda d: Document(session=self.session, **d),
+                        value)
             setattr(self, key, value)
 
         splited_url = urlsplit(self.url)
